@@ -3,7 +3,11 @@
   "displayName": "Tax Whistleblower Counsel",
   "version": "0.1.0",
   "description": "Cited IRC §7623 research, claim screening, award and deadline math for tax whistleblower counsel. Never cites from memory.",
-  "author": { "name": "Ryan Pliske" },
+  "author": {
+    "name": "Ryan Pliske"
+  },
   "skills": "./skills",
-  "agents": "./agents"
+  "agents": [
+    "./agents/authority-researcher.md"
+  ]
 }
