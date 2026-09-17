@@ -2,7 +2,7 @@
   "mcpServers": {
     "tax-whistleblower-counsel": {
       "type": "http",
-      "url": "https://TODO-set-at-M1.run.app/mcp"
+      "url": "https://twc-api-2dy6pokgjq-uc.a.run.app/mcp"
     }
   }
 }
