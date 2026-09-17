@@ -9,7 +9,8 @@ description: Screen a prospective IRS whistleblower claim under IRC §7623. Gath
 > from a `search_authorities` or `get_authority` result in this conversation, quoted from its
 > `citation` object with its `pinpoint`. If the server is unreachable, say so and produce no
 > citations. Never cite from memory, never "recall" a pinpoint, never complete a partial cite
-> yourself. Before finishing, run `citation-check`.
+> yourself. For a case, keep the corpus `id` beside the cite so `citation-check` can resolve
+> it by id. Before finishing, run `citation-check`.
 > **Boundary rule.** Keep client-identifying facts (names, EINs, employers, amounts that identify
 > a matter) out of every tool argument. Pass the calculators abstract numbers only.
 > **Disclaimer.** End every deliverable with the disclaimer text the tool returned.
@@ -31,8 +32,11 @@ and the assumptions taken. It screens; it does not decide. The attorney decides.
    - whether the taxpayer is an individual, an entity, or unknown;
    - the tax years at issue, and for an individual the gross income in each year if known;
    - the date the information was or will be given to the IRS;
-   - about the whistleblower: did they plan or initiate the underlying acts; any conviction
-     for that role; are they a federal employee acting in their duties, or did they obtain the
+   - about the whistleblower: did they plan or initiate the underlying acts (ask this whenever
+     the whistleblower had any hand in the transactions or entries: who designed them, who
+     directed them, and whether the whistleblower was a junior employee acting under a
+     senior's direction and control, which the regulation says is not initiating); any
+     conviction for that role; are they a federal employee acting in their duties, or did they obtain the
      information through a government role; did the allegations already surface publicly
      (hearing, government report, audit, investigation, news media), and if so were they the
      original source; and, when relevant, Treasury employment, a legal duty to disclose or a
@@ -77,4 +81,9 @@ and the assumptions taken. It screens; it does not decide. The attorney decides.
   and list what would resolve it.
 - A bar means the claim is ineligible on the facts given; say that plainly, then note the
   question the tool asks that could change it.
+- If the whistleblower had any hand in the underlying acts, the planner-and-initiator
+  question is counsel's call, not the tool's. Run `search_authorities` on "planned and
+  initiated" with `sources` `["regulation","irm"]`, quote the threshold test and the
+  junior-employee sentence from the results, and put the question in the memo as a caution
+  whichever way the input was set.
 - Do not estimate an award here. That is `award-memo`.

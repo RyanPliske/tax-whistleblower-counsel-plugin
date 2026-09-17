@@ -9,7 +9,8 @@ description: Build an exhibit index from the attorney's descriptions of the evid
 > from a `search_authorities` or `get_authority` result in this conversation, quoted from its
 > `citation` object with its `pinpoint`. If the server is unreachable, say so and produce no
 > citations. Never cite from memory, never "recall" a pinpoint, never complete a partial cite
-> yourself. Before finishing, run `citation-check`.
+> yourself. For a case, keep the corpus `id` beside the cite so `citation-check` can resolve
+> it by id. Before finishing, run `citation-check`.
 > **Boundary rule.** Keep client-identifying facts (names, EINs, employers, amounts that identify
 > a matter) out of every tool argument. Pass the calculators abstract numbers only.
 > **Disclaimer.** End every deliverable with the disclaimer text the tool returned.

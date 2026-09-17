@@ -33,8 +33,8 @@ legal terms before searching.
 ## Report
 
 - **Answer**: one paragraph, hedged to what the texts say.
-- **Authorities**: a table, `cite · pinpoint · verbatim quotation (at most 40 words) · why it
-  matters · url`.
+- **Authorities**: a table, `cite · pinpoint · corpus id · verbatim quotation (at most 40 words) ·
+  why it matters · url`.
 - **Contrary or limiting authority**: the same table, or "none found in the corpus".
 - **Gaps**: what the corpus does not appear to hold on this question, in one or two lines.
 - `corpusVersion`, and the disclaimer text from the tool response.
