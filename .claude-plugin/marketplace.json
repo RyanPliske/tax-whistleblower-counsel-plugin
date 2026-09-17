@@ -1,6 +1,6 @@
 {
   "name": "pliske-legal",
-  "description": "Ryan Pliske's legal plugins for Claude, starting with Tax Whistleblower Counsel (IRC \u00a77623).",
+  "description": "Ryan Pliske's legal plugins for Claude, starting with Tax Whistleblower Counsel (IRC §7623).",
   "owner": {
     "name": "Ryan Pliske"
   },
@@ -8,8 +8,8 @@
     {
       "name": "tax-whistleblower-counsel",
       "source": "./plugin",
-      "description": "Cited IRC \u00a77623 research, claim screening, award and deadline math for tax whistleblower counsel. Never cites from memory.",
-      "version": "0.1.0"
+      "description": "Cited IRC §7623 research, claim screening, award and deadline math for tax whistleblower counsel. Never cites from memory.",
+      "version": "0.1.1"
     }
   ]
 }
