@@ -53,10 +53,17 @@ claude plugin marketplace add RyanPliske/tax-whistleblower-counsel-plugin
 claude plugin install tax-whistleblower-counsel@pliske-legal
 ```
 
-Then start `claude` in `C:\Law`, type `/mcp`, choose **tax-whistleblower-counsel**, and sign
-in with your Google account in the browser that opens. When the list shows the server as
-connected, type `/ping` or ask "ping the counsel server" to confirm the seat and the corpus
-version.
+Then start `claude` in `C:\Law`, type `/mcp`, choose **tax-whistleblower-counsel**. A browser
+opens showing a Tax Whistleblower Counsel sign-in page with two buttons — take **Sign in with
+Microsoft** and use your firm `@twlfusa.com` account, the same one you use for Outlook. It goes
+straight to the firm's Microsoft page; there is no separate password to remember. Then press
+**Approve**.
+
+When the list shows the server as connected, type `/ping` or ask "ping the counsel server" to
+confirm the seat and the corpus version.
+
+If sign-in is refused, send Ryan the exact message. "No seat" means your address has not been
+invited yet; anything else he will want to see verbatim.
 
 If the browser never opens, run this once instead and repeat `/mcp`:
 
