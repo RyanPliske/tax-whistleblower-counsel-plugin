@@ -10,9 +10,9 @@ are synced, and a check refuses anything that looks like an SSN or EIN.
 1. **Node.js** (LTS) from nodejs.org. Accept the defaults.
 2. **Git for Windows** from git-scm.com. Accept the defaults (this includes Git Bash, which
    Claude Code uses to run its hooks).
-3. **GitHub CLI** from cli.github.com, then in a new terminal: `gh auth login` and follow the
-   prompts (GitHub.com, HTTPS, log in with a browser). Ryan has added your account to the
-   private drafts repo; this is the one reason you need a GitHub account.
+3. **You do not need a GitHub account.** Ryan sets up a deploy key instead — a key that opens
+   one repository and identifies no one, so nothing here is tied to a login of yours and there
+   is no second password or 2FA device to keep. Skip to §3; he does that part.
 4. **Claude Code**: follow the install steps at code.claude.com/docs, then `claude` once to sign
    in with your Claude account.
 
@@ -30,12 +30,38 @@ it; put matter facts in the conversation, not in `CLAUDE.md`.
 
 In a terminal:
 
+Ryan does this part once, at your keyboard. First a key for this one repository:
+
+```powershell
+ssh-keygen -t ed25519 -C "twc-drafts tpliske" -f $env:USERPROFILE\.ssh\twc_drafts -N '""'
+```
+
+He registers `twc_drafts.pub` on the repo as a deploy key with write access, then adds this to
+`%USERPROFILE%\.ssh\config` so it cannot disturb any other GitHub setup on the machine:
+
+```
+Host github-twc
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/twc_drafts
+  IdentitiesOnly yes
+```
+
+Then the clone, with your name on the commits:
+
 ```powershell
 cd $env:USERPROFILE\.claude
 if (Test-Path skills) { Rename-Item skills skills-before-twc }
-gh repo clone RyanPliske/tax-whistleblower-counsel-skill-drafts skills
-node skills\_sync\install.mjs
+git clone git@github-twc:RyanPliske/tax-whistleblower-counsel-skill-drafts.git skills
+cd skills
+git config user.name "Thomas C. Pliske"
+git config user.email "tpliske@twlfusa.com"
+node _sync\install.mjs
 ```
+
+The key has no passphrase, because the hook runs unattended when a session ends and a prompt
+nobody answers would just fail silently. That is why it is scoped to this one repository: it
+writes skill drafts and can reach nothing else.
 
 The last line registers a `SessionEnd` hook in `%USERPROFILE%\.claude\settings.json` and
 turns on the pre-commit check. It prints what it did. From now on, every skill your Claude
