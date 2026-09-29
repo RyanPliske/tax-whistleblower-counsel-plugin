@@ -1,9 +1,9 @@
 # Setting up your machine (Windows)
 
 One-time setup for the attorney's machine: Claude Code with the Tax Whistleblower Counsel
-plugin, and the skill capture loop (spec §2.11) that sends the skills your Claude writes to
-Ryan for curation. Your documents never leave your machine; only skill files and `CLAUDE.md`
-are synced, and a check refuses anything that looks like an SSN or EIN.
+plugin, and the morning digest (spec §2.11) that tells Ryan which skills to write for you. Your
+documents and conversations never leave your machine; only the digest, skill files and
+`CLAUDE.md` are synced, and a check refuses anything that looks like an SSN or EIN.
 
 ## 1. Install the tools
 
@@ -23,59 +23,103 @@ from inside it (`cd C:\Law` then `claude`). **Never run `git init` in this folde
 privileged material and it stays on your machine.
 
 Any standing instructions you want Claude to follow go in `C:\Law\CLAUDE.md`. That file is
-synced to Ryan (it is the second-most useful thing after skills), so keep client names out of
-it; put matter facts in the conversation, not in `CLAUDE.md`.
+synced to Ryan, so keep client names out of it; put matter facts in the conversation, not in
+`CLAUDE.md`.
 
 ## 3. The drafts repo becomes your skills folder
 
-In a terminal:
+**What this does for you:** each weekday morning your laptop reads the Claude sessions since the
+day before — on this machine; the conversations never leave it — and sends Ryan a short digest:
+what you asked for more than once, where Claude got in your way, and what the server didn't
+have. You never have to ask for a skill; Ryan writes them from the digest and they reach you as
+plugin updates.
 
-Ryan does this part once, at your keyboard. First a key for this one repository:
+### At the keyboard (Ryan, once, about 20 minutes)
 
-```powershell
-ssh-keygen -t ed25519 -C "twc-drafts tpliske" -f $env:USERPROFILE\.ssh\twc_drafts -N '""'
-```
+Everything below runs in **PowerShell** (Start → type "PowerShell"). Do not sign in to GitHub on
+this machine.
 
-He registers `twc_drafts.pub` on the repo as a deploy key with write access, then adds this to
-`%USERPROFILE%\.ssh\config` so it cannot disturb any other GitHub setup on the machine:
+1. **Check the tools.** Each should print a version or a path:
+   ```powershell
+   node --version
+   git --version
+   where.exe claude
+   ```
+   No Node → install the LTS from nodejs.org, then **open a new PowerShell window**. If
+   `where.exe claude` finds nothing, the scheduled job won't either; fix that before going on.
 
-```
-Host github-twc
-  HostName github.com
-  User git
-  IdentityFile ~/.ssh/twc_drafts
-  IdentitiesOnly yes
-```
+2. **Make the key.** When it asks for a passphrase, press **Enter twice** (no passphrase — the
+   job runs unattended, and a prompt nobody answers fails silently; that is also why the key
+   reaches this one repository and nothing else):
+   ```powershell
+   ssh-keygen -t ed25519 -C "twc-drafts tpliske" -f $env:USERPROFILE\.ssh\twc_drafts
+   ```
 
-Then the clone, with your name on the commits:
+3. **Get the public key to Ryan's Mac.** It is not a secret. Copy it, then text or email it to
+   yourself:
+   ```powershell
+   Get-Content $env:USERPROFILE\.ssh\twc_drafts.pub | Set-Clipboard
+   ```
 
-```powershell
-cd $env:USERPROFILE\.claude
-if (Test-Path skills) { Rename-Item skills skills-before-twc }
-git clone git@github-twc:RyanPliske/tax-whistleblower-counsel-skill-drafts.git skills
-cd skills
-git config user.name "Thomas C. Pliske"
-git config user.email "tpliske@twlfusa.com"
-node _sync\install.mjs
-```
+4. **Register it — on Ryan's Mac**, with write access (a read-only key clones fine and fails
+   only at push, the most confusing failure available). Save the pasted line as
+   `twc_drafts.pub`, then:
+   ```bash
+   gh repo deploy-key add twc_drafts.pub --allow-write -R RyanPliske/tax-whistleblower-counsel-skill-drafts -t "tpliske laptop"
+   ```
+   (Or on github.com: the repo → Settings → Deploy keys → Add, tick **Allow write access**.)
 
-The key has no passphrase, because the morning job runs unattended and a prompt nobody
-answers would just fail silently. That is why it is scoped to this one repository: it writes
-digests and skill drafts and can reach nothing else.
+5. **Tell ssh which key to use**, back on the laptop. Written from PowerShell on purpose:
+   Notepad would save it as `config.txt`, which ssh ignores.
+   ```powershell
+   Add-Content -Encoding ascii $env:USERPROFILE\.ssh\config "`nHost github-twc`n  HostName github.com`n  User git`n  IdentityFile ~/.ssh/twc_drafts`n  IdentitiesOnly yes`n"
+   ssh -T git@github-twc
+   ```
+   Type `yes` to trust GitHub's fingerprint. The answer must name the **repository**:
+   `Hi RyanPliske/tax-whistleblower-counsel-skill-drafts! You've successfully authenticated…`.
+   `Permission denied` means step 4 didn't take.
 
-The last line turns on the pre-commit check, keeps your Claude transcripts for a year instead
-of 30 days, and schedules **"TWC morning digest"**: weekdays at 7:00, or at your next logon if
-the laptop was off. It prints what it did. Each run reads the sessions since the last one, on
-this machine, and pushes a short digest to Ryan: what you asked for more than once, where
-Claude got in your way, and what the server didn't have. You never have to ask for a skill;
-Ryan writes them from the digest and they reach you as plugin updates. If you had skills in
-the old folder, copy the ones you want into `skills\`.
+6. **Clone it as the skills folder**, with his name on the commits, and install:
+   ```powershell
+   cd $env:USERPROFILE\.claude
+   if (Test-Path skills) { Rename-Item skills skills-before-twc }
+   git clone git@github-twc:RyanPliske/tax-whistleblower-counsel-skill-drafts.git skills
+   cd skills
+   git config user.name "Thomas C. Pliske"
+   git config user.email "tpliske@twlfusa.com"
+   node _sync\install.mjs
+   ```
+   It prints five lines; expect `morning job: "TWC morning digest" registered` and
+   `transcripts kept: 365 days`. If `skills-before-twc` now exists, copy any skills he wants
+   into `skills\`.
+
+7. **Preview before anything leaves.** Read this together — it is exactly what would be sent:
+   ```powershell
+   $env:TWC_DRY_RUN=1; node _sync\morning.mjs; Remove-Item Env:TWC_DRY_RUN
+   ```
+   It takes a minute or two. It covers his last week of sessions; `nothing to read` means there
+   were none (fine — do one short session in `C:\Law` and repeat). If it names a client or a
+   figure, stop and tell Ryan before step 8; the fix is in `_sync\digest-prompt.md`.
+
+8. **The real run**, through the scheduled task so the task itself is proven:
+   ```powershell
+   Start-ScheduledTask -TaskName "TWC morning digest"
+   ```
+   Wait a few minutes, then:
+   ```powershell
+   Get-Content _sync\last-run.log -Tail 3
+   ```
+   `pushed (…)` and a new file under `digests/` on GitHub means done. `failed: …` → the
+   `twc-sync-doctor` skill in this folder walks the fix; ask Claude *"Skills aren't syncing.
+   Diagnose it."*
 
 Auto-memory is **not** synced by default. If you want Ryan to see it too, run
 `node skills\_sync\install.mjs --sync-memory` once. To stop, delete
 `skills\_sync\.sync-memory`.
 
 ## 4. The plugin
+
+(Already done on the attorney's laptop 2026-09-23; skip unless setting up a new machine.)
 
 ```powershell
 claude plugin marketplace add RyanPliske/tax-whistleblower-counsel-plugin
@@ -106,14 +150,9 @@ Updates: `claude plugin marketplace update pliske-legal` then `claude plugin upd
 
 1. In `C:\Law`, start `claude` and ask: *"Screen this claim"*. The `claim-intake` skill should
    ask you three or four questions.
-2. `/exit`, then run the morning job now instead of waiting for tomorrow:
-   ```powershell
-   Start-ScheduledTask -TaskName "TWC morning digest"
-   ```
-3. Within a few minutes, `skills\_sync\last-run.log` on your machine ends with `pushed`, and
-   a digest appears under `digests/` at
-   github.com/RyanPliske/tax-whistleblower-counsel-skill-drafts. If the log says `failed`,
-   send Ryan the line.
+2. The digest is checked by §3 steps 7–8. After that, the only thing to watch is the next
+   weekday morning: `skills\_sync\last-run.log` gains a `pushed` or `nothing to read` line
+   without anyone touching it. That proves the schedule, not just the script.
 
 ## What is and is not synced
 
@@ -122,7 +161,7 @@ Updates: `claude plugin marketplace update pliske-legal` then `claude plugin upd
 | the morning digest and its skill drafts | your conversations and transcripts (read here, never sent) |
 | `skills\<name>\SKILL.md` files your Claude writes | anything in `C:\Law` other than `CLAUDE.md` |
 | `C:\Law\CLAUDE.md` | |
-| auto-memory, only after `--sync-memory` | your Claude account or Google sign-in |
+| auto-memory, only after `--sync-memory` | your Claude account or Microsoft sign-in |
 
 The pre-commit check refuses a commit that contains an SSN or EIN pattern, or a file outside
 those paths, and names the line. Fix it and run the task again.
