@@ -59,14 +59,17 @@ git config user.email "tpliske@twlfusa.com"
 node _sync\install.mjs
 ```
 
-The key has no passphrase, because the hook runs unattended when a session ends and a prompt
-nobody answers would just fail silently. That is why it is scoped to this one repository: it
-writes skill drafts and can reach nothing else.
+The key has no passphrase, because the morning job runs unattended and a prompt nobody
+answers would just fail silently. That is why it is scoped to this one repository: it writes
+digests and skill drafts and can reach nothing else.
 
-The last line registers a `SessionEnd` hook in `%USERPROFILE%\.claude\settings.json` and
-turns on the pre-commit check. It prints what it did. From now on, every skill your Claude
-writes lands in the repo, and each time a session ends the hook commits and pushes within
-about a minute. If you had skills in the old folder, copy the ones you want into `skills\`.
+The last line turns on the pre-commit check, keeps your Claude transcripts for a year instead
+of 30 days, and schedules **"TWC morning digest"**: weekdays at 7:00, or at your next logon if
+the laptop was off. It prints what it did. Each run reads the sessions since the last one, on
+this machine, and pushes a short digest to Ryan: what you asked for more than once, where
+Claude got in your way, and what the server didn't have. You never have to ask for a skill;
+Ryan writes them from the digest and they reach you as plugin updates. If you had skills in
+the old folder, copy the ones you want into `skills\`.
 
 Auto-memory is **not** synced by default. If you want Ryan to see it too, run
 `node skills\_sync\install.mjs --sync-memory` once. To stop, delete
@@ -103,22 +106,26 @@ Updates: `claude plugin marketplace update pliske-legal` then `claude plugin upd
 
 1. In `C:\Law`, start `claude` and ask: *"Screen this claim"*. The `claim-intake` skill should
    ask you three or four questions.
-2. Ask Claude to *"write a skill called my-intake-notes that reminds you how I like intake
-   memos formatted"*, then `/exit`.
-3. Within a minute, `skills\_sync\last-run.log` on your machine ends with `pushed`, and the
-   skill appears at github.com/RyanPliske/tax-whistleblower-counsel-skill-drafts. If the log
-   says `failed`, send Ryan the line.
+2. `/exit`, then run the morning job now instead of waiting for tomorrow:
+   ```powershell
+   Start-ScheduledTask -TaskName "TWC morning digest"
+   ```
+3. Within a few minutes, `skills\_sync\last-run.log` on your machine ends with `pushed`, and
+   a digest appears under `digests/` at
+   github.com/RyanPliske/tax-whistleblower-counsel-skill-drafts. If the log says `failed`,
+   send Ryan the line.
 
 ## What is and is not synced
 
 | Synced | Not synced |
 |---|---|
+| the morning digest and its skill drafts | your conversations and transcripts (read here, never sent) |
 | `skills\<name>\SKILL.md` files your Claude writes | anything in `C:\Law` other than `CLAUDE.md` |
-| `C:\Law\CLAUDE.md` | your conversations and transcripts |
+| `C:\Law\CLAUDE.md` | |
 | auto-memory, only after `--sync-memory` | your Claude account or Google sign-in |
 
 The pre-commit check refuses a commit that contains an SSN or EIN pattern, or a file outside
-those paths, and names the line. Fix it and end the session again.
+those paths, and names the line. Fix it and run the task again.
 
 ## claude.ai instead of Claude Code
 
